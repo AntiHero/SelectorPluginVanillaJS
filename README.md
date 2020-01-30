@@ -1,3 +1,3 @@
-# Vanilla JS Selectro Plugin
+# Vanilla JS Selector Plugin
 
 [watch here](https://antihero.github.io/SelectorPluginVanillaJS/)
