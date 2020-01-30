@@ -1,0 +1,13 @@
+{
+  "name": "selectplugin",
+  "version": "1.0.0",
+  "description": "Шаблон задания на реализацию нативного JS плагина",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "A.Schemelev",
+  "license": "ISC",
+  "dependencies": {
+  }
+}
