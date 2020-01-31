@@ -1,21 +1,3 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDP-YOO53M447cadmvzX8Q2B-aBTfPgnzE",
-  authDomain: "select-plugin.firebaseapp.com",
-  databaseURL: "https://select-plugin.firebaseio.com",
-  projectId: "select-plugin",
-  storageBucket: "select-plugin.appspot.com",
-  messagingSenderId: "1076629816261",
-  appId: "1:1076629816261:web:e5f79076422da1545d01ac",
-  measurementId: "G-HXFNMZH2JR"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.firestore();
-
-const log = document.getElementById('log');
-
 class Select {
   constructor({ selector, label, url }) {
     this.settings = {
@@ -47,17 +29,16 @@ class Select {
     };
 
     this.setSelect = e => {
-      this.output.childNodes[1].textContent = e.target.getAttribute(
-        "value"
-      );
+      this.output.childNodes[1].textContent = e.target.getAttribute("value");
       this.selected = e.target.getAttribute("data-index");
-    }
+    };
 
     this.init();
   }
 
   async init() {
-    if ([...this.root.classList].includes('select__wrapper')) throw new Error('This element is already in use!');
+    if ([...this.root.classList].includes("select__wrapper"))
+      throw new Error("This element is already in use!");
 
     this.root.className = "select__wrapper";
     this.output.className = "select__output";
@@ -72,46 +53,32 @@ class Select {
     this.root.append(this.output, this.listWrapper);
     this.output.append(this.outputLabel, this.outputText, this.arrow);
 
-    document.addEventListener(
-      "click",
-      this.closeSelect
-    );
+    document.addEventListener("click", this.closeSelect);
 
-    this.output.addEventListener(
-      "click",
-      this.openSelect
-    );
+    this.output.addEventListener("click", this.openSelect);
 
-    await db
-      .collection("selections")
-      .get()
-      .then(snapshot => {
-        snapshot.forEach(doc => this.selections.push(doc.data().name));
+    this.selections = await fetch(this.settings.url).then(data => data.json());
 
-        if (this.selections.length) {
-          let selectionList = (() => {
-            return this.selections.map((selection, index) => {
-              let selectionElement = document.createElement("li");
-              selectionElement.setAttribute("data-index", `${index}`);
-              selectionElement.setAttribute("value", `${selection}`);
-              selectionElement.setAttribute("class", "select__list-item");
-              selectionElement.innerText = selection;
+    if (this.selections.length) {
+      let selectionList = (() => {
+        return this.selections.map((selection, index) => {
+          let selectionElement = document.createElement("li");
+          selectionElement.setAttribute("data-index", `${index}`);
+          selectionElement.setAttribute("value", `${selection.value}`);
+          selectionElement.setAttribute("class", "select__list-item");
+          selectionElement.innerText = selection.value;
 
-              return selectionElement;
-            });
-          })();
+          return selectionElement;
+        });
+      })();
 
-          selectionList.forEach(item => this.list.appendChild(item));
+      selectionList.forEach(item => this.list.appendChild(item));
 
-          this.loader.remove();
-          this.listWrapper.appendChild(this.list);
+      this.loader.remove();
+      this.listWrapper.appendChild(this.list);
 
-          this.list.addEventListener(
-            "click",
-            this.setSelect
-          );
-        }
-      });
+      this.list.addEventListener("click", this.setSelect);
+    }
   }
 
   open() {
@@ -137,12 +104,15 @@ class Select {
     if (this.selections[this.selected] !== undefined) {
       this.outputLabel.classList.add("select__output-label--small");
       this.outputLabel.classList.add("select__output-label--selected");
-      this.output.childNodes[1].textContent = this.selections[this.selected];
+      this.output.childNodes[1].textContent = this.selections[
+        this.selected
+      ].value;
     }
   }
 
   getSelected() {
-    return {value: this.selections[this.selected]}
+    if (this.selected === null) return { value: "Nothing" };
+    return { value: this.selections[this.selected].value };
   }
 
   clear() {
@@ -157,7 +127,7 @@ class Select {
     this.output.removeEventListener("click", this.openSelect);
     this.list.removeEventListener("click", this.setSelect);
 
-    this.root.removeAttribute('class');
+    this.root.removeAttribute("class");
     this.root.innerText = "";
   }
 }
@@ -165,9 +135,8 @@ class Select {
 const select = new Select({
   selector: "#select",
   label: "Select technology",
-  url: "https://vladilen-dev.firebaseio.com/technologies.json"
+  url: "https://select-plugin.firebaseio.com/selections.json"
 });
-
 
 document.addEventListener("click", function(e) {
   if (e.target === document.querySelector('[data-type="open"]')) {
